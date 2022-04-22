@@ -1,5 +1,6 @@
 
-
+clear all
+set more off
 
 * Make directory 
 cd "/Users/josemiguelquinteroholguin/Dropbox/UChicago/Empirical Analysis III/EA3-Midterm-JMQ"
@@ -33,16 +34,13 @@ frmttable using "Tables/tab1_hc_fc", tex replace s(`corrM') sub(1) sd(3) ///
 
 * Table 2: Balancing test 
 
-* Create constant to fix two way clustering 
-cap gen temp 	=1
 
 * Create control groups
 global reserveControls logpcinc_co logunempl_co logdist logruggedness logresarea_sqkm
-global tribeControls HC ea_v5 ea_v30 ea_v32 ea_v66
+global tribeControls  HC ea_v5 ea_v30 ea_v32 ea_v66
 global endResControls logpop popadultshare casino
-global stateFE i.statenumber
-global ivControls removal wprec_enviro logruggedness
-global ivControls2 removal wsilver_enviro wgold_enviro logruggedness
+global stateFE _Ist*
+global ivControls removal wprec_enviro logruggedness 
 
 tempname balancing
 
@@ -50,13 +48,13 @@ tempname balancing
 foreach x of var $reserveControls{
 	tempname rowT
 	* Run regression only on Forced Cohexistence
-	qui reghdfe `x' FC if year==2000, absorb(temp) cluster(eaid statenumber)
+	qui reghdfe `x' FC if year==2000, noa cluster(eaid statenumber)
 	* Calculate t-stat
 	local t = abs(_b[FC]/_se[FC])
 	* Add to row
 	mat `rowT' = (nullmat(`rowT'),(_b[FC],`t',`e(r2)'))
 	* Run regression on Forced Cohexistence and Historical Concentration
-	qui reghdfe `x' FC HC if year==2000, absorb(temp) cluster(eaid statenumber)
+	qui reghdfe `x' FC HC if year==2000, noa cluster(eaid statenumber)
 	* Calculate t-stat
 	local t = abs(_b[FC]/_se[FC])
 	* Add to row
@@ -70,13 +68,13 @@ foreach x of var $reserveControls{
 foreach x of var $tribeControls{
 	tempname rowT
 	* Run regression only on Forced Cohexistence
-	qui reghdfe `x' FC if year==2000, absorb(temp) cluster(eaid statenumber)
+	qui reghdfe `x' FC if year==2000, noa cluster(eaid statenumber)
 	* Calculate t-stat
 	local t = abs(_b[FC]/_se[FC])
 	* Add to row
 	mat `rowT' = (nullmat(`rowT'),(_b[FC],`t',`e(r2)'))
 	* Run regression on Forced Cohexistence and Historical Concentration
-	qui reghdfe `x' FC HC if year==2000, absorb(temp) cluster(eaid statenumber)
+	qui reghdfe `x' FC HC if year==2000, noa cluster(eaid statenumber)
 	* Get coef for HC
 	local lin = _b[HC]
 	if(`e(r2)'!=1){
@@ -99,13 +97,13 @@ foreach x of var $tribeControls{
 foreach x of var $endResControls{
 	tempname rowT
 	* Run regression only on Forced Cohexistence
-	qui reghdfe `x' FC if year==2000, absorb(temp) cluster(eaid statenumber)
+	qui reghdfe `x' FC if year==2000, noa cluster(eaid statenumber)
 	* Calculate t-stat
 	local t = abs(_b[FC]/_se[FC])
 	* Add to row
 	mat `rowT' = (nullmat(`rowT'),(_b[FC],`t',`e(r2)'))
 	* Run regression on Forced Cohexistence and Historical Concentration
-	qui reghdfe `x' FC HC if year==2000, absorb(temp) cluster(eaid statenumber)
+	qui reghdfe `x' FC HC if year==2000, noa cluster(eaid statenumber)
 	* Calculate t-stat
 	local t = abs(_b[FC]/_se[FC])
 	* Add to row
@@ -121,14 +119,17 @@ frmttable using "Tables/tab2_balancing", tex replace s(`balancing') sd(3) ///
     multicol(1,2,5;2,2,3;2,4,3;3,2,3;3,4,3;) hlines(101{0}1) fragment  ///
 	rtitles("Surround. p.c. income" \ "Surround. p.c. unempl.-rate" \ "Distance to major city"\"log(Ruggedness Reserv )"\"log(Re-Area in sqkm)"\"Historical centralization"\"Percent calories from agriculture"\"Sedentariness"\"Complexity of local community"\"$ D$(Wealth distinctions)"\"log(Population)"\"Pop-Share Adult (0–100)"\"$ D$(Casino)") 
 
+	* Update globals for regressions 
+global tribeControls ea_v5 ea_v30 ea_v32 ea_v66
+global ivControls removal wprec_enviro logruggedness homelandruggedness
 
-
+xi   i.statenumber	i.eaid	
 * Run regression OLS
 tempname panelA
 tempname panelB
 * Run regression 
 local controls
-foreach x in reserveControls tribeControls endResControls extra {
+foreach x in reserveControls tribeControls endResControls stateFE extra {
 	* Run regression
 	qui ivreg2 logpcinc FC HC `controls' if year==2000, cluster(eaid statenumber) sm
 	* Extract t and pvalue
@@ -139,7 +140,7 @@ foreach x in reserveControls tribeControls endResControls extra {
 	* Add to row
 	mat `panelA' = (nullmat(`panelA'),(_b[FC],`fc_t' \ _b[HC],`hc_t' \ `e(r2)',.))
 	* Run regression
-	 qui ivreg2 logpcinc FC `controls' i.eaid if year==2000, cluster(eaid statenumber) sm
+	 qui ivreg2 logpcinc FC `controls' _Ie* if year==2000, cluster(eaid statenumber) sm
 	* Extract t and pvalue
 	local fc_t = abs(_b[FC]/_se[FC])
 	local fc_p = 2*ttail(e(df_r),`fc_t')
@@ -150,21 +151,6 @@ foreach x in reserveControls tribeControls endResControls extra {
 
 }
 
-* Regression with state fix effects
-qui ivreg2 logpcinc FC HC `controls' i.statenumber if year==2000, cluster(eaid statenumber) sm
-* Extract t and pvalue
-local fc_t = abs(_b[FC]/_se[FC])
-local fc_p = 2*ttail(e(df_r),`fc_t')
-local hc_t = abs(_b[HC]/_se[HC])
-local hc_p = 2*ttail(e(df_r),`hc_t')
-* Add to row
-mat `panelA' = (nullmat(`panelA'),(_b[FC],`fc_t'\  _b[HC],`hc_t' \ `e(r2)',.))
-qui ivreg2 logpcinc FC `controls' i.statenumber i.eaid if year==2000, cluster(eaid statenumber) sm
-* Extract t and pvalue
-local fc_t = abs(_b[FC]/_se[FC])
-local fc_p = 2*ttail(e(df_r),`fc_t')
-* Add to row
-mat `panelB' = (nullmat(`panelB'),(_b[FC],`fc_t'\ `e(r2)',.))
 * Create full matrix
 mat tab3 = (`panelA' \ `panelB')
 * Create matrix for stars
@@ -184,6 +170,8 @@ frmttable using "Tables/tab3_OLS", tex replace s(tab3) sd(3) sub(1) hlines(101{0
 	annotate(annotmat) asymbol("$ ^{***}$")
 	
 cap gen wprec_enviro = wgold_enviro + wsilver_enviro
+
+xi   i.statenumber
 
 * Run regression FirstStage and Reduced form
 tempname panelA
@@ -251,10 +239,10 @@ mat stars3	= (`starsA' \ `starsB')
 
 * Export matrix as table
 frmttable using "Tables/tab4_rf", tex replace s(tab3) sd(3) sub(1) hlines(11{0}1) ///
-	ctitles("", "(1)", "(2)", "(3)", "(4)", "(5)", "" \ "\textit{Panel A: First Stage, Dependent: Forced Coexistence}", "", "", "", "", "","") ///
+	ctitles("", "(1)", "(2)", "(3)", "(4)", "(5)", "(6)" \ "\textit{Panel A: First Stage, Dependent: Forced Coexistence}", "", "", "", "", "","") ///
     multicol(2,1,7;3,1,6;9,1,6)  fragment rtitles("Historical gold-mining" \ "" \ "Historical silver-mining" \ "" \ "$ R^2$" \ "\textit{Panel B: Reduced Form, Dependent: log(per capita income)}" \ "Historical gold-mining" \ "" \ "Historical silver-mining" \ "" \ "$ R^2$" \ "") ///
 	addrow("Historical centralization","Y","Y","Y","Y","Y","Y"\ "Reservation controls","","Y", "Y","Y","Y","Y" \ "Tribe controls","","", "Y","Y","Y","Y" \ "Additional reservation controls","","", "","Y","Y","Y" \ "State fixed effects","","", "","","Y","Y" \ "Additional IV controls", "", "", "", "","","Y") ///
-	annotate(stars3) asymbol("$ ^{*}$", "$ ^{**}$", "$ ^{***}$")
+	annotate(stars3) asymbol("$ ^*$", "$ ^{**}$", "$ ^{***}$")
 
 * Regress V 
 
@@ -300,11 +288,15 @@ foreach x in reserveControls tribeControls endResControls stateFE ivControls ext
 	local controls `controls' ${`x'}
 }
 
+
 * Create full matrix
 mat tab4 	= (`panelA' \ `panelB')
 mat stars4	= (`starsA' \ `starsB')
 
-mat list tab4
-mat list stars4
-
+* Export matrix as table
+frmttable using "Tables/tab5_iv", tex replace s(tab4) sd(3) sub(1) hlines(101{0}1) ///
+	ctitles("", "log(per capita income)", "", "", "", "", "" \"Dependent", "(1)", "(2)", "(3)", "(4)", "(5)", "(6)" \ "\textit{Panel A: Two Instruments}", "", "", "", "", "","") ///
+    multicol(1,2,6;3,1,7;11,1,7)  fragment rtitles("Forced coexistence" \ "" \ "F-statistic (instruments)" \ "" \  "$ p$-val. (over-identification test)" \ "" \ "$ p$-val. (endogeneity test)" \ "\textit{Panel B: One Instrument}" \ "Forced coexistence" \ "" \ "F-statistic (instruments)" \ "" \ "$ p$-val. (endogeneity test)" ) ///
+	addrow("Historical centralization","Y","Y","Y","Y","Y","Y"\ "Res-controls","","Y", "Y","Y","Y","Y" \ "Add. tribe-controls","","", "Y","Y","Y","Y" \ "Endog. res-controls","","", "","Y","Y","Y" \ "State fixed effects","","", "","","Y","Y" \ "Add. exclusion controls", "", "", "", "","","Y") ///
+	annotate(stars4) asymbol("$ ^*$", "$ ^{**}$", "$ ^{***}$")
 
