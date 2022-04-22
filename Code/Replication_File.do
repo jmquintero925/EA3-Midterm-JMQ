@@ -40,6 +40,9 @@ cap gen temp 	=1
 global reserveControls logpcinc_co logunempl_co logdist logruggedness logresarea_sqkm
 global tribeControls HC ea_v5 ea_v30 ea_v32 ea_v66
 global endResControls logpop popadultshare casino
+global stateFE i.statenumber
+global ivControls removal wprec_enviro logruggedness
+global ivControls2 removal wsilver_enviro wgold_enviro logruggedness
 
 tempname balancing
 
@@ -180,25 +183,128 @@ frmttable using "Tables/tab3_OLS", tex replace s(tab3) sd(3) sub(1) hlines(101{0
 	addrow("Reservation controls","","Y", "Y","Y","Y" \ "Tribe controls","","", "Y","Y","Y" \ "Additional reservation controls","","", "","Y","Y" \ "State fixed effects","","", "","","Y") ///
 	annotate(annotmat) asymbol("$ ^{***}$")
 	
+cap gen wprec_enviro = wgold_enviro + wsilver_enviro
+
+* Run regression FirstStage and Reduced form
+tempname panelA
+tempname starsA
+tempname panelB
+tempname starsB
+* Run regression 
+local controls
+foreach x in reserveControls tribeControls endResControls stateFE ivControls extra {
+	tempname tempStar 
+	* Run regression
+	qui ivreg2 FC HC instrument_gold intrument_silver `controls' if year==2000, cluster(eaid statenumber) sm
+	* Extract t and pvalue
+	local gold_t = _b[instrument_gold]/_se[instrument_gold]
+	local gold_p = 2*ttail(e(df_r),abs(`gold_t'))
+	local silver_t = _b[intrument_silver]/_se[intrument_silver]
+	local silver_p = 2*ttail(e(df_r),abs(`silver_t'))
+	* Add row to panel 
+	mat `panelA' = (nullmat(`panelA'),(_b[instrument_gold],`gold_t' \ _b[intrument_silver],`silver_t' \ `e(r2)',.))
+
+	* Add stars to matrix from gold instrument 
+	if(`gold_p'<=0.1 & `gold_p'>0.05) mat `tempStar' = (nullmat(`tempStar'),(1,0))
+	else if(`gold_p'<=0.05 & `gold_p'>0.01) mat `tempStar' = (nullmat(`tempStar'),(2,0))
+	else if(`gold_p'<=0.01) mat `tempStar' = (nullmat(`tempStar'),(3,0))
+	else mat `tempStar' = (nullmat(`tempStar'),(0,0))
+	* Add stars to matrix from silver instrument 
+	if(`silver_p'<=0.1 & `silver_p'>0.05) mat `tempStar' = (nullmat(`tempStar') \ (1,0 \ 0,0))
+	else if(`silver_p'<=0.05 & `silver_p'>0.01) mat `tempStar' = (nullmat(`tempStar') \ (2,0 \ 0,0))
+	else if(`silver_p'<=0.01) mat `tempStar' = (nullmat(`tempStar') \ (3,0 \ 0,0))
+	else mat `silver_p' = (nullmat(`tempStar') \ (0,0 \ 0,0))
+	mat `starsA' = (nullmat(`starsA'),`tempStar')
+	*---------------------------*
+	* Reduced form 
+	*---------------------------*
+	tempname tempStar2
+	* Run regression
+	qui ivreg2 logpcinc HC instrument_gold intrument_silver `controls' if year==2000, cluster(eaid statenumber) sm
+	* Extract t and pvalue
+	local gold2_t = _b[instrument_gold]/_se[instrument_gold]
+	local gold2_p = 2*ttail(e(df_r),abs(`gold2_t'))
+	local silver2_t = _b[intrument_silver]/_se[intrument_silver]
+	local silver2_p = 2*ttail(e(df_r),abs(`silver2_t'))
+	* Add row to panel 
+	mat `panelB' = (nullmat(`panelB'),(_b[instrument_gold],`gold2_t' \ _b[intrument_silver],`silver2_t' \ `e(r2)', . ))
+	* Add stars to matrix from gold instrument 
+	if(`gold2_p'<=0.1 & `gold2_p'>0.05) mat `tempStar2' = (nullmat(`tempStar2'),(1,0))
+	else if(`gold2_p'<=0.05 & `gold2_p'>0.01) mat `tempStar2' = (nullmat(`tempStar2'),(2,0))
+	else if(`gold2_p'<=0.01) mat `tempStar2' = (nullmat(`tempStar2'),(3,0))
+	else mat `tempStar2' = (nullmat(`tempStar2'),(0,0))
+	* Add stars to matrix from silver instrument 
+	if(`silver2_p'<=0.1 & `silver2_p'>0.05) mat `tempStar2' = (nullmat(`tempStar2')\(1,0 \ 0,0))
+	else if(`silver2_p'<=0.05 & `silver2_p'>0.01) mat `tempStar2' = (nullmat(`tempStar2')\(2,0 \ 0,0))
+	else if(`silver2_p'<=0.01) mat `tempStar2' = (nullmat(`tempStar2')\(3,0 \ 0,0))
+	else mat `tempStar2' = (nullmat(`tempStar2')\(0,0 \ 0,0))
+	mat `starsB' = (nullmat(`starsB'),`tempStar2')
+	* Add next control 
+	local controls `controls' ${`x'}
+
+}
+
+	
+* Create full matrix
+mat tab3 	= (`panelA' \ `panelB')
+mat stars3	= (`starsA' \ `starsB')
+
+* Export matrix as table
+frmttable using "Tables/tab4_rf", tex replace s(tab3) sd(3) sub(1) hlines(11{0}1) ///
+	ctitles("", "(1)", "(2)", "(3)", "(4)", "(5)", "" \ "\textit{Panel A: First Stage, Dependent: Forced Coexistence}", "", "", "", "", "","") ///
+    multicol(2,1,7;3,1,6;9,1,6)  fragment rtitles("Historical gold-mining" \ "" \ "Historical silver-mining" \ "" \ "$ R^2$" \ "\textit{Panel B: Reduced Form, Dependent: log(per capita income)}" \ "Historical gold-mining" \ "" \ "Historical silver-mining" \ "" \ "$ R^2$" \ "") ///
+	addrow("Historical centralization","Y","Y","Y","Y","Y","Y"\ "Reservation controls","","Y", "Y","Y","Y","Y" \ "Tribe controls","","", "Y","Y","Y","Y" \ "Additional reservation controls","","", "","Y","Y","Y" \ "State fixed effects","","", "","","Y","Y" \ "Additional IV controls", "", "", "", "","","Y") ///
+	annotate(stars3) asymbol("$ ^{*}$", "$ ^{**}$", "$ ^{***}$")
+
+* Regress V 
+
+cap gen instAgg = instrument_gold + intrument_silver
 
 
+* Run regression FirstStage and Reduced form
+tempname panelA
+tempname starsA
+tempname panelB
+tempname starsB
+* Run regression 
+local controls HC
+foreach x in reserveControls tribeControls endResControls stateFE ivControls extra {
+	* Run regression
+	qui ivreg2 logpcinc (FC = instrument_gold  intrument_silver) `controls' if year == 2000 , cl(eaid statenumber)  sm endog(FC) partial(`controls')
+	* Extract t and pvalue
+	local t = _b[FC]/_se[FC]
+	local p = 2*ttail(e(df_r),abs(`t'))
+	* Add row to panel 
+	mat `panelA' = (nullmat(`panelA'),(_b[FC],`t' \ e(widstat),. \ e(jp), . \ e(estatp), . ))
+	* Add stars to matrix from gold instrument 
+	if(`p'<=0.1 & `p'>0.05) mat `starsA' = (nullmat(`starsA'),(1,0\0,0\0,0\0,0))
+	else if(`p'<=0.05 & `p'>0.01)  mat `starsA' = (nullmat(`starsA'),(2,0\0,0\0,0\0,0))
+	else if(`p'<=0.01)  mat `starsA' = (nullmat(`starsA'),(3,0\0,0\0,0\0,0))
+	else  mat `starsA' = (nullmat(`starsA'),(0,0\0,0\0,0\0,0))
+	*---------------------------*
+	* Reduced form 
+	*---------------------------*
+	* Run regression
+	qui ivreg2 logpcinc (FC = instAgg) `controls' if year == 2000 , cl(eaid statenumber)  sm endog(FC) partial(`controls')
+	* Extract t and pvalue
+	local t = _b[FC]/_se[FC]
+	local p = 2*ttail(e(df_r),abs(`t'))
+	* Add row to panel 
+	mat `panelB' = (nullmat(`panelB'),(_b[FC],`t' \ e(widstat),.  \ e(estatp), . ))
+	* Add stars to matrix from gold instrument 
+	if(`p'<=0.1 & `p'>0.05) mat `starsB' = (nullmat(`starsB'),(1,0\0,0\0,0))
+	else if(`p'<=0.05 & `p'>0.01)  mat `starsB' = (nullmat(`starsB'),(2,0\0,0\0,0))
+	else if(`p'<=0.01)  mat `starsB' = (nullmat(`starsB'),(3,0\0,0\0,0))
+	else  mat `starsB' = (nullmat(`starsB'),(0,0\0,0\0,0))
+	* Add next control 
+	local controls `controls' ${`x'}
+}
 
+* Create full matrix
+mat tab4 	= (`panelA' \ `panelB')
+mat stars4	= (`starsA' \ `starsB')
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+mat list tab4
+mat list stars4
 
 
