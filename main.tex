@@ -1,14 +1,62 @@
-\documentclass{article}
+\documentclass[12pt]{article}
 \usepackage[utf8]{inputenc}
+\usepackage{amsfonts, amsmath, amssymb}
+\usepackage{geometry,lscape,setspace}
+\geometry{top = 2.5cm,
+bottom=2.5cm,
+left = 3cm, 
+right = 3cm, 
+}
 
-\title{EA3-Midterm-JMQ}
-\author{Jose M. Quintero-Holguin}
-\date{April 2022}
-
+\doublespacing
 \begin{document}
+\subsection*{Referee Report}
+\vspace{-10pt}
+This paper contributes to the literature studying the effect of creating artificial borderlines into long term economic performance. Specifically, this papers examines how of imposing common jurisdiction to a group of communities with common culture/ethnicity affects the economic income in the long-run. To do so, the paper uses the Reservations of Native Americans as a quasi experimental set-up to analyze the effects of initial difference in forced coexistence between different communities on current income. The paper explains how in the process of forming Reservations, the US government avoided to integrate more than one tribe within a single Reservation. However, tribes had different political and social structures ex-ante which provides a source of variation in terms of initial governance even while having language, cultural and other traits that were common to the tribe. 
 
-\maketitle
+The paper uses two different strategies to estimate the effect of forced coexistence. First, it runs an OLS regression assuming that that forced coexistence is random conditional on random observable characteristics and tribe fix effects. Nevertheless, the paper acknowledges that integrating several bands from a same tribe when forming a reservation could have had a decision rule based on unobserved characteristics of the tribe. Consequently, the paper addresses this concern by using an IV estimation based on mining rushes. The author argues that mining rushes changed the incentives of the government to create formation while being orthogonal to tribe unobserved characteristics. The author estimates that forced coexisting led to a decrease of approximately 30\% of current income. This estimates are robust to the inclusion of covariates and fix effects. Additionally, the results of the IV exercise are still significant and close to the OLS estimates. 
 
-\section{Introduction}
+Finally, the paper goes one step further by trying to unveil the mechanisms that drive the current differences in income per capita. The author argues that forcing cohabitation between bands implied high political conflict which at the same time yielded a more uncertain business environment. 
+
+\textbf{Comments.} Overall the paper does a good job in presenting a compelling argument. The main point is convincing and it definitely lingers after a careful reading. Moreover, it pushes the literature by going further from the low hanging fruit mechanisms based on culture. It finds a creative setting for a quasi-natural experiment and digs deep to unveil the economic mechanisms that are impacting the long-run economics performance. In addition, the creation of the data set show comprehensive a work of archive.
+
+On the flip side, the paper has some potential areas to improve. First and foremost, the author estimates, even while being significant seem too high and it is a hard sell. 30\% divergence in income seems like a lot considering that the author calculating the effects of coexistence while holding fix cultural factors which are typically the drivers of the first order effects. More importantly, there is no discussion about the magnitude of the estimates and what mechanism can make them believable. 
+
+Second, the IV exercise has a couple of loose ends that would require a more detailed discussion. The argument for instrument exogeneity, which is probably one of the more important discussions is limited to no more than three sentences. It comes up as week and raises more questions than what it actually solves. Similarly, there is no discussion about monotonicity of the instrument. There can potentially be offsetting effects without monotonicity that would make the estimates even bigger and a tougher sale. This discussion becomes even more relevant in the estimation that uses two different instruments. Finally, the discussion on what the IV is identifying could be expanded. Specifically, even though the author acknowledges the limitation of estimating the LATE and identifies the group of compliers, it fails to explain why is this the relevance of estimating the effect solely on the group of compliers. In addition to discussing why the OLS estimates and IV estimates differ in magnitude, a discussion on the relevance of estimating the LATE within the group  of compliers should be included. 
+
+Lastly, there paper test mechanisms using reports from news papers. Though, this seems like a creative idea, it lacks a discussion of the potential biases from using this source of information. 
+
+On a more technical note, there are issues with the empirical strategy that raises concerns about the empirical exercises. First, in all of the specifications, the author includes controls that are determined after the treatment. For instance, having a casino, population and unemployment are just a few examples of controls that. are determined after treatment and can be a source of bias to the regression estimates.  
+
+Also, the inclusion of state fix effects in the IV regressions posses a threat to the result as over-fitting the first-stage will not solve the endogeneity problem. Note that the $R^2$ is over 0.5 but moreover, when comparing the mean of the predicted values of the first-stage to the actual mean of the endogenous variable, I found them to be identical. Furthermore, the F-statistic for weak instrument seems low enough to be worth of a discussion and reporting the confidence intervals. Last but not least, not that the coefficient of the OLS regression decrease as more controls are added whereas on the IV identification the coefficient increases as more controls are added. Even though the IV and OLS are identifying different parameters, the trend described and the fact that both coefficients are sufficiently close deserves a deeper analysis. 
+
+\subsection*{Replicating the Results}
+
+
+% \begin{table}[]
+%     \caption{Caption}
+%     \label{tab:my_label}
+%     \input{Tables/tab1_hc_fc}
+% \end{table}
+\pagebreak
+\pdfpageattr\expandafter{\the\pdfpageattr/Rotate 90}
+\begin{landscape}
+\begin{table}[htb]
+\caption{\sc First stage and reduced form relationship with mining instruments}
+\input{Tables/tab4_rf}  \vspace{10pt} 
+\footnotesize{ There are 182 observations in all regressions. The instruments are defined in tens of dollars of minerals mined per square kilometer of ancestral homeland in the period 1860–1890. Columns 1–5 introduce controls in the same way as before. Column 6 adds the ruggedness of ancestral homelands, distance between ancestral homelands and the reservation, and the value of historical mining (defined like the instruments) in a reservation’s surrounding counties. $t$-statistics are for standard errors that are clustered two-way at tribe and state level$.^{***}p<0.01$ $,^{**} p<0.05$ $,^* p<0.1$.} 
+\end{table}
+\end{landscape}
+
+\begin{landscape}
+\begin{table}[htb]
+\caption{\sc IV Results}
+\input{Tables/tab5_iv}
+\end{table}
+\end{landscape}
+
+\pagebreak 
+\global\pdfpageattr\expandafter{\the\pdfpageattr/Rotate 0}
+LA LA LA 
 
 \end{document}
