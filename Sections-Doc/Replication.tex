@@ -1,0 +1,50 @@
+\subsection*{Replication}
+Clearly, the main result of this paper is the fact that forced coexistence has a negative impact on long-run income. Regardless of the magnitude of the estimates, the sign of the estimates tells by itself a compelling story. Thus, the more important tables of the paper are both the IV and the OLS exercises that convey the main point of the paper is doing. I uploaded all the replications files together with the extensions to a public \href{https://github.com/jmquintero925/EA3-Midterm-JMQ}{GitHub Repository}. I begin then by replication the OLS results. First and foremost, for the OLS estimates to be valid, I replicate the balancing test in Table \ref{tab:balancing}. 
+
+\begin{table}[htb]
+    \caption{\sc Balancing Test}
+    \label{tab:balancing}
+    \vspace{-15pt}
+    \input{Tables/tab2_balancing}
+    \vspace{-10pt}
+    \footnotesize{Each row reports on a separate regression of one control variable on forced coexistence. Each row reports the same regression in two different specifications: first, with forced coexistence as the only regressor, then additionally controlling for historical centralization. In both specifications, I report only the coefficient on forced coexistence. The number of observations is 182 in each regression. The $t$-statistics are for standard errors that are two-way clustered at the tribe and the state level$.^{***}p<0.01$ $,^{**} p<0.05$ $,^* p<0.1$.}
+\end{table}
+\FloatBarrier 
+
+Next, after replicating the balancing I proceed to replicate the OLS result. These are presented in Table \ref{tab:ols}. note that all estimates are perfectly replicated and thus there is nothing particular to comment on here. Finally, I replicate the IV regression. First of all, I replicate the reduced form and the first stage. These results are presented in Table \ref{tab:first_stage}. Two challenges were encountered during the replication. First, for the IV-related exercises, one of the controls used during the OLS is dropped. Specifically, the OLS uses log population squared whereas the IV exercises do not. Additionally, the paper mentions two controls related to mining. The first one is associated with silver mining, and the second is associated with gold mining. Even though the paper makes it seems like two separate controls, for replicating the results as they are, they need to be combined into one single control by adding them. Other than that, the results are exactly as in the paper. The IV results are presented in Table \ref{tab:iv}.
+\begin{table}[htb]
+    \caption{\sc OLS and Tribe Fixed-Effects Results}
+    \label{tab:ols}
+    \vspace{-15pt}
+    \input{Tables/tab3_OLS}
+    \vspace{-10pt}
+    \footnotesize{$N = 182$ observations in all regressions. Reservation-controls are surrounding-county. p.c. income and unempl.-rate, distance to the nearest major city, log(Ruggedness) and log(Res-area). Tribe-characteristics are subsistence patterns, sedentariness, wealth distinctions, and social complexity of local communities. Additional reservation-controls in column 4 are log(Population), log(Population-squared), adult population-share and $D$(Casino). $t$-statistics reported for two-way clustered standard errors, at tribe and state level. Column 3 of Panel B is the same as column 2 because EA characteristics are not identified with tribe fixed effects$.^{***}p<0.01$ $,^{**} p<0.05$ $,^* p<0.1$.}
+\end{table}
+
+
+
+
+\begin{rotatepage}
+\begin{landscape}
+\begin{table}[htb]
+\caption{\sc First stage and reduced form relationship with mining instruments}
+\label{tab:first_stage} \vspace{-10pt} 
+\input{Tables/tab4_rf}  \vspace{-10pt} 
+\footnotesize{ There are 182 observations in all regressions. The instruments are defined in tens of dollars of minerals mined per square kilometer of ancestral homeland in the period 1860–1890. Columns 1–5 introduce controls in the same way as before. Column 6 adds the ruggedness of ancestral homelands, distance between ancestral homelands and the reservation, and the value of historical mining (defined like the instruments) in a reservation’s surrounding counties. $t$-statistics are for standard errors that are clustered two-way at tribe and state level$.^{***}p<0.01$ $,^{**} p<0.05$ $,^* p<0.1$.} 
+\end{table}
+\end{landscape}
+\end{rotatepage}
+
+\begin{rotatepage}
+\begin{landscape}
+\begin{table}[htb]
+\caption{\sc IV Results} 
+\label{tab:iv} \vspace{-10pt}
+\input{Tables/tab5_iv} \vspace{-10pt}
+\footnotesize{There are 182 observations in all regressions. In Panel A, I instrument for forced coexistence with two instruments. In Panel B, I combine gold and silver into one precious metal mining instrument. Columns 1–6 introduce controls in the same way as before. t-statistics are for standard errors that are clustered two-way at tribe and state level. I report the Kleibergen–Papp F-test and the Hanson J over-identification test.$^{***}p<0.01$ $,^{**} p<0.05$ $,^* p<0.1$.} 
+\end{table}
+\end{landscape}
+\end{rotatepage}
+
+
+\pagebreak 
