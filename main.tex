@@ -2,7 +2,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[labelsep=period]{caption}
 \usepackage{amsfonts, amsmath, amssymb}
-\usepackage{geometry,lscape,setspace,hyperref,enumitem,placeins}
+\usepackage{geometry,lscape,setspace,hyperref,enumitem,placeins,subcaption,apacite,natbib,graphicx}
 \geometry{top = 2.5cm,
 bottom=2.5cm,
 left = 3cm, 
@@ -11,12 +11,17 @@ right = 3cm,
 \hypersetup{
     colorlinks=true,
     linkcolor=blue,
-    filecolor=magenta,      
-    urlcolor=cyan,    
+    filecolor=black,      
+    urlcolor=blue,    
+    citecolor=blue,
 }
 \captionsetup[table]{name=\sc Table}
 \setcounter{table}{1}
 \renewcommand{\thetable}{\Roman{table} \\ }
+
+\captionsetup[figure]{name=\sc Figure}
+\renewcommand{\thefigure}{\Roman{figure} }
+
 
 \newenvironment{rotatepage}%
     {\clearpage\pagebreak[4]\global\pdfpageattr\expandafter{\the\pdfpageattr/Rotate 90}}%
@@ -30,5 +35,11 @@ right = 3cm,
 \input{Sections-Doc/Referee}
 \input{Sections-Doc/Replication}
 \input{Sections-Doc/Extension}
+
+% Bibliography
+\FloatBarrier
+\newpage
+\bibliographystyle{apacite}
+\bibliography{Sections-Doc/references.bib}
 
 \end{document}
