@@ -38,7 +38,7 @@ frmttable using "Tables/tab1_hc_fc", tex replace s(`corrM') sub(1) sd(3) ///
 * Create control groups
 global reserveControls logpcinc_co logunempl_co logdist logruggedness logresarea_sqkm
 global tribeControls  HC ea_v5 ea_v30 ea_v32 ea_v66
-global endResControls logpop popadultshare casino
+global endResControls logpop logpopsq popadultshare casino 
 global stateFE _Ist*
 global ivControls removal wprec_enviro homelandruggedness
 
@@ -134,17 +134,17 @@ foreach x in reserveControls tribeControls endResControls stateFE extra {
 	* Run regression
 	qui ivreg2 logpcinc FC HC `controls' if year==2000, cluster(eaid statenumber) sm
 	* Extract t and pvalue
-	local fc_t = abs(_b[FC]/_se[FC])
-	local fc_p = 2*ttail(e(df_r),`fc_t')
-	local hc_t = abs(_b[HC]/_se[HC])
-	local hc_p = 2*ttail(e(df_r),`hc_t')
+	local fc_t = _b[FC]/_se[FC]
+	local fc_p = 2*ttail(e(df_r),abs(`fc_t'))
+	local hc_t = _b[HC]/_se[HC]
+	local hc_p = 2*ttail(e(df_r),abs(`hc_t'))
 	* Add to row
 	mat `panelA' = (nullmat(`panelA'),(_b[FC],`fc_t' \ _b[HC],`hc_t' \ `e(r2)',.))
 	* Run regression
 	 qui ivreg2 logpcinc FC `controls' _Ie* if year==2000, cluster(eaid statenumber) sm
 	* Extract t and pvalue
-	local fc_t = abs(_b[FC]/_se[FC])
-	local fc_p = 2*ttail(e(df_r),`fc_t')
+	local fc_t = _b[FC]/_se[FC]
+	local fc_p = 2*ttail(e(df_r),abs(`fc_t'))
 	* Add to row
 	mat `panelB' = (nullmat(`panelB'),(_b[FC],`fc_t' \ `e(r2)', . ))
 	* Add next control 
@@ -171,6 +171,8 @@ frmttable using "Tables/tab3_OLS", tex replace s(tab3) sd(3) sub(1) hlines(101{0
 	annotate(annotmat) asymbol("$ ^{***}$")
 	
 cap gen wprec_enviro = wgold_enviro + wsilver_enviro
+global endResControls logpop popadultshare casino 
+
 
 xi   i.statenumber
 
