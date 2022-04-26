@@ -40,7 +40,8 @@ global reserveControls logpcinc_co logunempl_co logdist logruggedness logresarea
 global tribeControls  HC ea_v5 ea_v30 ea_v32 ea_v66
 global endResControls logpop popadultshare casino
 global stateFE _Ist*
-global ivControls removal wprec_enviro logruggedness 
+global ivControls removal wprec_enviro homelandruggedness
+
 
 tempname balancing
 
@@ -121,7 +122,7 @@ frmttable using "Tables/tab2_balancing", tex replace s(`balancing') sd(3) ///
 
 	* Update globals for regressions 
 global tribeControls ea_v5 ea_v30 ea_v32 ea_v66
-global ivControls removal wprec_enviro logruggedness homelandruggedness
+global ivControls removal wprec_enviro homelandruggedness
 
 xi   i.statenumber	i.eaid	
 * Run regression OLS
@@ -240,7 +241,7 @@ mat stars3	= (`starsA' \ `starsB')
 * Export matrix as table
 frmttable using "Tables/tab4_rf", tex replace s(tab3) sd(3) sub(1) hlines(11{0}1) ///
 	ctitles("", "(1)", "(2)", "(3)", "(4)", "(5)", "(6)" \ "\textit{Panel A: First Stage, Dependent: Forced Coexistence}", "", "", "", "", "","") ///
-    multicol(2,1,7;3,1,6;9,1,6)  fragment rtitles("Historical gold-mining" \ "" \ "Historical silver-mining" \ "" \ "$ R^2$" \ "\textit{Panel B: Reduced Form, Dependent: log(per capita income)}" \ "Historical gold-mining" \ "" \ "Historical silver-mining" \ "" \ "$ R^2$" \ "") ///
+    multicol(2,1,7;8,1,7)  fragment rtitles("Historical gold-mining" \ "" \ "Historical silver-mining" \ "" \ "$ R^2$" \ "\textit{Panel B: Reduced Form, Dependent: log(per capita income)}" \ "Historical gold-mining" \ "" \ "Historical silver-mining" \ "" \ "$ R^2$" \ "") ///
 	addrow("Historical centralization","Y","Y","Y","Y","Y","Y"\ "Reservation controls","","Y", "Y","Y","Y","Y" \ "Tribe controls","","", "Y","Y","Y","Y" \ "Additional reservation controls","","", "","Y","Y","Y" \ "State fixed effects","","", "","","Y","Y" \ "Additional IV controls", "", "", "", "","","Y") ///
 	annotate(stars3) asymbol("$ ^*$", "$ ^{**}$", "$ ^{***}$")
 
