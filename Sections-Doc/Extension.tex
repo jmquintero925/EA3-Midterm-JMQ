@@ -1,5 +1,5 @@
 \subsection*{Extension}
-One of the most important discussions of the paper I feel end ups falling short: what is the IV exercise actually identifying? The linear IV identification has several underlying assumption about the unobservable characteristics of the tribes. In this extension I will follow the theory described in \citet{Heckman05} and test some of the underlying assumptions that the author is imposing unobservables and discuss the implications on the authors estimations. 
+One of the most important discussions of the paper I feel ends ups falling short: what is the IV exercise identifying? The linear IV identification has several underlying assumptions about the unobservable characteristics of the tribes. In this extension, I will follow the theory described in \citet{Heckman05} and test some of the underlying assumptions that the author is imposing unobservables and discuss the implications of the author's estimations. 
 
 Begin by considering the standard setting of potential outcomes \vspace{-18pt}
 \begin{align*}
@@ -20,7 +20,7 @@ where the second line uses the instrument exogeneity and line three uses the ass
 \begin{equation*}
     \frac{\text{Cov}(J(Z,X),Y\vert X)}{\text{Cov}(J(Z,X),D\vert X)} = \mu_1(X)-\mu_0(X) + \frac{\text{Cov}(J(Z,X),D(U_1-U_0) \vert X)}{\text{Cov}(J(Z,X),D\vert X)}
 \end{equation*}
-Instrument exogeneity implies that $J(Z,X)$ is independent from $U_1-U_0$ conditional on $X$. However it does not imply that $J(Z,X)$ is independent from $D(U_1-U_0)$. Thus, for IV to properly work, we need to impose one extra assumption, is that there is no sorting based on unobservables.
+Instrument exogeneity implies that $J(Z,X)$ is independent from $U_1-U_0$ conditional on $X$. However, it does not imply that $J(Z,X)$ is independent of $D(U_1-U_0)$. Thus, for IV to properly work, we need to impose one extra assumption, which is that there is no sorting based on unobservables.
 
 Given this, I want to test the assumption that there is no sorting based on unobservables. To do so, I will a result showed by \citet{Heckman05}: If there is no sorting, the the marginal treatment effect defined as 
 \begin{equation*}
@@ -34,7 +34,7 @@ By differentiating and using the Fundamental theorem of calculus
 \begin{equation*}
     \frac{\partial\mathbb{E}[Y\vert P(Z)=p]}{\partial p} = \Delta^{\text{ATE}}+\mathbb{E}[U_1-U_0\vert p] = \Delta^{\text{MTE}}(p) 
 \end{equation*}
-Thus, a sufficient condition to claim there is no sorting based on unobservables is that $\mathbb{E}[Y\vert P(Z)=p]$ is linear on $p$. Recall that for a proper estimation of the propensity score, it is required a common support. I calculate the propensity score using both a probit and the predicted value from the first stage. The results are presented in Figure \ref{fig:comSupp}.
+Thus, a sufficient condition to claim there is no sorting based on unobservables is that $\mathbb{E}[Y\vert P(Z)=p]$ is linear on $p$. Recall that for a proper estimation of the propensity score, common support is required. I calculate the propensity score using both probit and the predicted value from the first stage. The results are presented in Figure \ref{fig:comSupp}.
 \begin{figure}[htb]
     \caption{\sc Common Support}
     \label{fig:comSupp}
@@ -54,11 +54,11 @@ Thus, a sufficient condition to claim there is no sorting based on unobservables
     \scriptsize{}
 \end{figure}
 \FloatBarrier
-Thus, for the analysis, the method of estimating the proensity score will matter. If done with the probit then the linearity should only consider data with $p\geq0.2$. If using the linear estimate, then the data that can be used for the analysis requires $p\geq 0.3.$. Next in Figure \ref{fig:linTest} we present the object described in equation \eqref{eq:func}. 
+Thus, for the analysis, the method of estimating the proensity score will matter. If done with the probit, the linearity should only consider data with $p\geq0.2$. If using the linear estimate, then the data that can be used for the analysis requires $p\geq 0.3.$. Next in Figure \ref{fig:linTest} we present the object described in equation \eqref{eq:func}. 
 \begin{figure}[htb]
     \centering
     \caption{\sc Linear Test}
     \label{fig:linTest}
     \includegraphics[width=0.48\textwidth]{Figures/Linear_Test.pdf}
 \end{figure}
-Upon inspection it is clear that there are some non-linearities and thus we can not discard the possibility of sorting based on unobservables. A more formal test could be performed following \citet{Chen1999}. 
+Upon inspection, it is clear that there are some non-linearities and thus we can not discard the possibility of sorting based on unobservables. A more formal test could be performed following \citet{Chen1999}. 
